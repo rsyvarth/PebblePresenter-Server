@@ -23,6 +23,14 @@ app.use(express.json());
 app.use(express.urlencoded());
 server.listen( port );
 
+io.set('transports', [
+  //   'websocket'
+  // , 'flashsocket'
+  // , 'htmlfile'
+  'xhr-polling'
+  , 'jsonp-polling'
+]);
+
 //Setup Socket.IO
 io.sockets.on('connection', function (socket) {
 
