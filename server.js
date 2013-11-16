@@ -108,7 +108,8 @@ var API = {
 			connection.query('SELECT * from presentations where pebble_id = ?', [req.params.pebbleId], function(err, rows, fields) {
 				if (err) {
 					console.log(err);
-					return;
+					cb(false);
+					return false;
 				}
 				data = rows[0];
 
@@ -132,10 +133,7 @@ var API = {
 		console.log('Get auth id');
 
 		// connection.query('DELETE from pebbles where pebble_id = ?', [pebbleId], function(err, rows, fields) {
-		// 	if (err) {
-					console.log(err);
-					return;
-				}
+		
 			var data = {
 				auth_key: API.generateAuthKey(),
 				generated: +new Date()
@@ -148,7 +146,8 @@ var API = {
 			connection.query('INSERT into pebbles SET ? ON DUPLICATE KEY UPDATE ?', [data,data], function(err, result) {
 				if (err) {
 					console.log(err);
-					return;
+					cb(false);
+					return false;
 				}
 				data.pebble_id = result.insertId;
 				console.log('Return auth', data);
@@ -167,7 +166,8 @@ var API = {
 		connection.query('SELECT * from presentations where pebble_id = ?', [pebble_id], function(err, rows, fields) {
 			if (err) {
 					console.log(err);
-					return;
+					cb(false);
+					return false;
 				}
 			var data = rows[0];
 
@@ -188,7 +188,8 @@ var API = {
 		connection.query('SELECT * from presentations where page_hash = ?', [page_hash], function(err, rows, fields) {
 			if (err) {
 					console.log(err);
-					return;
+					cb(false);
+					return false;
 				}
 			data = rows[0];
 
@@ -202,7 +203,8 @@ var API = {
 							connection.query('UPDATE presentations SET pebble_id = ?, config = ?, updated = ? WHERE page_hash = ?', [pebble_id, config, +new Date(), page_hash], function(err, result) {
 								if (err) {
 					console.log(err);
-					return;
+					cb(false);
+					return false;
 				}
 								cb({status:'success'});
 							});
@@ -212,7 +214,8 @@ var API = {
 					connection.query('UPDATE presentations SET config = ?, updated = ? WHERE page_hash = ?', [config, +new Date(), page_hash], function(err, result) {
 						if (err) {
 					console.log(err);
-					return;
+					cb(false);
+					return false;
 				}
 						cb({status:'success'});
 					});
@@ -233,7 +236,8 @@ var API = {
 						connection.query('INSERT INTO presentations SET ?', data, function(err, result) {
 							if (err) {
 					console.log(err);
-					return;
+					cb(false);
+					return false;
 				}
 							cb({status:'success'});
 						});
@@ -261,7 +265,8 @@ var API = {
 		connection.query('SELECT * from pebbles where auth_key = ?', [pebbleAuth], function(err, rows, fields) {
 			if (err) {
 					console.log(err);
-					return;
+					cb(false);
+					return false;
 				}
 			data = rows[0];
 
