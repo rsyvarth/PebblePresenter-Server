@@ -11,7 +11,7 @@ var port = process.env.PORT || 1337;
 // in Windows Azure Web Sites, which will force socket.io
 // to fall back to a different communication protocol
 // Prevent potential problems by specifying one, in this case, xhrpolling
-io.set('transports', ['xhrpolling']);
+// io.set('transports', ['xhrpolling']);
 // Listen for incoming requests
 server.listen(port);
 // Redirect request to index.html
