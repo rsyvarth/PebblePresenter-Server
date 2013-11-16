@@ -106,11 +106,8 @@ var API = {
 		console.log('Getting slide info');
 		if( req.params.pebbleId > 0 ) {
 			connection.query('SELECT * from presentations where pebble_id = ?', [req.params.pebbleId], function(err, rows, fields) {
-				if (err) {
-					console.log(err);
-					cb(false);
-					return false;
-				}
+				if (err) {console.log(err); if( err.fatal ) {cb(false);return false;}}
+
 				data = rows[0];
 
 				if( data && data.pres_id > 0 ) {
@@ -144,11 +141,8 @@ var API = {
 			}
 
 			connection.query('INSERT into pebbles SET ? ON DUPLICATE KEY UPDATE ?', [data,data], function(err, result) {
-				if (err) {
-					console.log(err);
-					cb(false);
-					return false;
-				}
+				if (err) {console.log(err); if( err.fatal ) {cb(false);return false;}}
+
 				data.pebble_id = result.insertId;
 				console.log('Return auth', data);
 				cb( data );
@@ -164,11 +158,7 @@ var API = {
 		var dir = req.param.direction;
 
 		connection.query('SELECT * from presentations where pebble_id = ?', [pebble_id], function(err, rows, fields) {
-			if (err) {
-					console.log(err);
-					cb(false);
-					return false;
-				}
+				if (err) {console.log(err); if( err.fatal ) {cb(false);return false;}}
 			var data = rows[0];
 
 			cb(data);
@@ -186,11 +176,7 @@ var API = {
 
 
 		connection.query('SELECT * from presentations where page_hash = ?', [page_hash], function(err, rows, fields) {
-			if (err) {
-					console.log(err);
-					cb(false);
-					return false;
-				}
+				if (err) {console.log(err); if( err.fatal ) {cb(false);return false;}}
 			data = rows[0];
 
 			if( data && data.pres_id > 0 ) {
@@ -201,22 +187,16 @@ var API = {
 						} else {
 							pebble_id = id;
 							connection.query('UPDATE presentations SET pebble_id = ?, config = ?, updated = ? WHERE page_hash = ?', [pebble_id, config, +new Date(), page_hash], function(err, result) {
-								if (err) {
-					console.log(err);
-					cb(false);
-					return false;
-				}
+				if (err) {console.log(err); if( err.fatal ) {cb(false);return false;}}
+				
 								cb({status:'success'});
 							});
 						}
 					});
 				} else {
 					connection.query('UPDATE presentations SET config = ?, updated = ? WHERE page_hash = ?', [config, +new Date(), page_hash], function(err, result) {
-						if (err) {
-					console.log(err);
-					cb(false);
-					return false;
-				}
+				if (err) {console.log(err); if( err.fatal ) {cb(false);return false;}}
+		
 						cb({status:'success'});
 					});
 				}
@@ -234,11 +214,8 @@ var API = {
 							updated: +new Date(),
 						}
 						connection.query('INSERT INTO presentations SET ?', data, function(err, result) {
-							if (err) {
-					console.log(err);
-					cb(false);
-					return false;
-				}
+				if (err) {console.log(err); if( err.fatal ) {cb(false);return false;}}
+			
 							cb({status:'success'});
 						});
 					}
@@ -263,11 +240,7 @@ var API = {
 
 	matchPebbleAuth: function( pebbleAuth, cb ) {
 		connection.query('SELECT * from pebbles where auth_key = ?', [pebbleAuth], function(err, rows, fields) {
-			if (err) {
-					console.log(err);
-					cb(false);
-					return false;
-				}
+				if (err) {console.log(err); if( err.fatal ) {cb(false);return false;}}
 			data = rows[0];
 
 			if( data && data.pebble_id > 0 ) {
