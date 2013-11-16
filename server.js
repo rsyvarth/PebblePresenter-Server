@@ -51,6 +51,19 @@ io.sockets.on('connection', function (socket) {
 		socket.emit('displaymessage',data);
 	});
 
+	socket.on('/updatePresentation', function(data){
+		req = {
+			body: {
+				page_url: data.page_url,
+				pebble_auth: data.pebble_auth
+			}
+		};
+		API.updateSlides(req, function(ret){
+			console.log('Returning page', ret);
+			socket.emit('presentationInfo',ret);
+		});
+	});
+
 	// socket.on('sendmessage', function (data) {
 	// 	socket.broadcast.emit('displaymessage', data);
 	// 	socket.emit('changeSlide',data);
