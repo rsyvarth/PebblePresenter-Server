@@ -295,7 +295,8 @@ var API = {
 
 	generatePageHash: function( url ) {
 		if( url ) {
-			return require('crypto').createHash('md5').update(url).digest("hex");
+			var part = url.split('#');
+			return require('crypto').createHash('md5').update(part[0]).digest("hex");
 		} else {
 			return false;
 		}
