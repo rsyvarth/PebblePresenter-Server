@@ -60,7 +60,12 @@ io.sockets.on('connection', function (socket) {
 		};
 		API.updateSlides(req, function(ret){
 			console.log('Returning page', ret);
-			socket.emit('presentationInfo',ret);
+
+			if( ret.status == 'success' ) {
+				API.getSlidesByPage( data.page_url, function(info){
+					socket.emit('presentationInfo',info);
+				});
+			}
 		});
 	});
 
