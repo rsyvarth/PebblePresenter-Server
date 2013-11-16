@@ -17,7 +17,8 @@ var connection = mysql.createConnection({
 connection.connect();
 
 //Setup Express
-app.use(express.bodyParser());
+app.use(express.json());
+app.use(express.urlencoded());
 server.listen( port );
 
 //Setup Socket.IO
