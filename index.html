@@ -7,8 +7,6 @@
   // Ask client (browser input box) to enter text      
   function sendMessage(){
     socket.emit('sendmessage', document.getElementById('msg').value);
-    var elem = document.getElementById('chat');
-    elem.innerHTML = '<li>'+document.getElementById('msg').value+'</li>' + elem.innerHTML;
     document.getElementById('msg').value = '';
   }
   // Displaymessage event received at all clients
