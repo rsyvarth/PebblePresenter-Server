@@ -51,7 +51,7 @@ io.sockets.on('connection', function (socket) {
 		socket.emit('displaymessage',data);
 	});
 
-	socket.on('/updatePresentation', function(data){
+	socket.on('updatePresentation', function(data){
 		req = {
 			body: {
 				page_url: data.page_url,
