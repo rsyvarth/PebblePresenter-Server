@@ -1,3 +1,5 @@
+console.log('Start loading the extension');
+
 var html = '<ul id="msg" style="border: 1px solid #000; background: #eee; width: 500px; word-wrap: break-word; position: absolute; top: 0px; right: 0px;"></ul>';
 html += '<script src="http://pebblepresenter.syvarth.com/socket.io/socket.io.js"></script>';
 document.getElementsByTagName('body')[0].innerHTML = html + document.getElementsByTagName('body')[0].innerHTML;

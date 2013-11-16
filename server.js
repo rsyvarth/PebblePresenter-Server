@@ -65,6 +65,10 @@ app.get('/', function(req,res){
   res.sendfile(__dirname + '/index.html');
 });
 
+app.get('/extension.js', function(req,res){
+  res.sendfile(__dirname + '/extension.js');
+});
+
 app.get('/getPresentationPebble/', function(req,res){
 	API.getSlideByPebble(req, function(ret){
 		console.log('Returning page', ret);
