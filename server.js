@@ -6,7 +6,9 @@ var app = express()
 	, server = http.createServer(app)
 	, io = require('socket.io').listen(server)
 	, port = (process.env.PORT || 1337)
-	, mysql = require('mysql');
+	, mysql = require('mysql')
+	, presNodes = {}
+	, presSockets = {};
 
 var connection = mysql.createConnection({
   host     : (process.env.PORT) ? 'us-cdbr-azure-west-b.cleardb.com' : 'localhost',
@@ -24,6 +26,18 @@ server.listen( port );
 //Setup Socket.IO
 io.sockets.on('connection', function (socket) {
 
+	socket.on('registerPresentation', function (data) {
+		console.log('Registering Presentation', data);
+		API.getSlidesByPage( data.page_url, function(info){
+			presNodes[ info.pres_id ] = {
+				socket: socket,
+				data: info
+			};
+			console.log('Presentation Connected: ', info.pres_id, info);
+			socket.emit('presentationInfo',info);
+		});
+	});
+
 	socket.on('sendmessage', function (data) {
 		socket.broadcast.emit('displaymessage', data);
 		socket.emit('displaymessage',data);
@@ -35,6 +49,7 @@ io.sockets.on('connection', function (socket) {
 	// });
 
 	socket.on('disconnect', function(){
+		delete presSockets[ socket.id ];
     	console.log('Client Disconnected.');
     });
 });
@@ -152,14 +167,20 @@ var API = {
 	changeSlide: function(req, cb) {
 		console.log('Change slide');
 
-		var pebble_id = req.param.pebbleId;
-		var dir = req.param.direction;
+		var pebble_id = req.params.pebbleId;
+		var dir = req.params.direction;
 
 		connection.query('SELECT * from presentations where pebble_id = ?', [pebble_id], function(err, rows, fields) {
 			if (err) throw err;
 			var data = rows[0];
 
-			cb(data);
+			console.log(data, pebble_id);
+			if( data && data.pres_id && presNodes[ data.pres_id ] ) {
+				presNodes[ data.pres_id ].socket.emit('changeSlide',{direction:dir});
+				cb(true);
+			} else {
+				cb(false);
+			}
 		});
 	},
 
@@ -184,9 +205,12 @@ var API = {
 							cb({status:'error',code:'E_AUTH_FAILED'});
 						} else {
 							pebble_id = id;
-							connection.query('UPDATE presentations SET pebble_id = ?, config = ?, updated = ? WHERE page_hash = ?', [pebble_id, config, Math.floor(+new Date()/1000), page_hash], function(err, result) {
+							connection.query('UPDATE presentations SET pebble_id = 0 WHERE pebble_id = ?', [pebble_id], function(err, result) {
 								if (err) throw err;
-								cb({status:'success'});
+								connection.query('UPDATE presentations SET pebble_id = ?, config = ?, updated = ? WHERE page_hash = ?', [pebble_id, config, Math.floor(+new Date()/1000), page_hash], function(err, result) {
+									if (err) throw err;
+									cb({status:'success'});
+								});
 							});
 						}
 					});
@@ -208,12 +232,44 @@ var API = {
 							config: config,
 							created: Math.floor(+new Date()/1000),
 							updated: Math.floor(+new Date()/1000),
-						}
-						connection.query('INSERT INTO presentations SET ?', data, function(err, result) {
+						};
+
+						connection.query('UPDATE presentations SET pebble_id = 0 WHERE pebble_id = ?', [pebble_id], function(err, result) {
 							if (err) throw err;
-							cb({status:'success'});
+							connection.query('INSERT INTO presentations SET ?', data, function(err, result) {
+								if (err) throw err;
+								cb({status:'success'});
+							});
 						});
 					}
+				});
+			}
+		});
+	},
+
+	getSlidesByPage: function(page_url, cb) {
+		console.log('Get slide info');
+
+		var page_hash = API.generatePageHash( page_url );
+
+		connection.query('SELECT * from presentations where page_hash = ?', [page_hash], function(err, rows, fields) {
+			if (err) throw err;
+			data = rows[0];
+
+			if( data && data.pres_id > 0 ) {
+				cb(data);
+			} else {
+				var data = {
+					page_hash: page_hash,
+					pebble_id: 0,
+					config: '',
+					created: Math.floor(+new Date()/1000),
+					updated: Math.floor(+new Date()/1000),
+				}
+				connection.query('INSERT INTO presentations SET ?', data, function(err, result) {
+					if (err) throw err;
+					data.pres_id = result.insertId;
+					cb(data);
 				});
 			}
 		});

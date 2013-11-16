@@ -1,18 +1,32 @@
-<html>
-<head>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  // Initialize the socket connection
-  var socket = io.connect();
+var pebblePresenter = {
+	init: function(){
+		// Initialize the socket connection
+		var socket = io.connect();
+		pebblePresenter.data = {
+			page_url: document.URL,
+			pebble_auth: null,
+		}
 
-  socket.on('changeSlide', function(data){
-    var elem = document.getElementById('chat');
-    elem.innerHTML = '<li>'+data+'</li>' + elem.innerHTML;
-  });
+		socket.emit('registerPresentation', pebblePresenter.data);
+
+		socket.on('presentationInfo', function(data){
+			pebblePresenter.log(data);
+		});
+
+		socket.on('changeSlide', function(data){
+			pebblePresenter.log(data);
+		});
+	},
+
+	log: function( data ) {
+		var elem = document.getElementById('msg');
+		elem.innerHTML = '<li>'+JSON.stringify(data)+'</li>' + elem.innerHTML;
+	}
+};
+
+pebblePresenter.init();
 </script>
-</head>
-<body>
-<ul id="chat" style="border: 1px solid #000; background: #eee;">
-</ul>
-</body>
-</html>
+
+<ul id="msg" style="border: 1px solid #000; background: #eee; width: 500px; word-wrap: break-word"></ul>
