@@ -16,7 +16,6 @@ var connection = mysql.createConnection({
   password : (process.env.PORT) ? '8c60e8e9' : '',
   database: 'pebblepAX8b7nf8s',
 });
-connection.connect();
 
 //Setup Express
 app.use(express.json());
